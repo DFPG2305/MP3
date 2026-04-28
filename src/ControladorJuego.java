@@ -10,171 +10,152 @@ public class ControladorJuego {
         this.juego = juego;
         this.ventana = ventana;
 
-        ventana.getBtnJugarCarta().addActionListener(e -> {
-            jugarCartaGUI();
-        });
+        ventana.getBtnJugarCarta().addActionListener(e -> jugarCartaGUI());
+        ventana.getBtnAtacar().addActionListener(e -> atacarGUI());
+        ventana.getBtnActivarTrampa().addActionListener(e -> activarTrampaGUI());
+        ventana.getBtnTerminarTurno().addActionListener(e -> terminarTurnoGUI());
 
-        ventana.getBtnAtacar().addActionListener(e -> {
-            atacarGUI();
-        });
-
-        ventana.getBtnTerminarTurno().addActionListener(e -> {
-            terminarTurnoGUI();
-        });
+        ventana.setLog("¡El duelo comienza! Turno de " + juego.getJugadorActual().getNombre());
+        ventana.setTurno(juego.getNumeroTurno());
+        ventana.actualizarInterfaz();
     }
 
     private void jugarCartaGUI() {
         List<Carta> mano = juego.getJugadorActual().getMano();
-
-        if (mano.isEmpty()) {
-            ventana.setLog("No tienes cartas.");
-            return;
-        }
+        if (mano.isEmpty()) { ventana.setLog("No tienes cartas en la mano."); return; }
 
         String[] opciones = new String[mano.size()];
-
         for (int i = 0; i < mano.size(); i++) {
-            opciones[i] = mano.get(i).getNombre();
+            Carta c = mano.get(i);
+            if (c instanceof Monstruo) {
+                Monstruo m = (Monstruo) c;
+                opciones[i] = m.getNombre() + " " + m.getEstrellas() + " ATK:" + m.getAtk() + " DEF:" + m.getDef();
+            } else {
+                opciones[i] = "[" + (c instanceof CartaMagica ? "MAGIA" : "TRAMPA") + "] " + c.getNombre();
+            }
         }
 
-        int seleccion = JOptionPane.showOptionDialog(
-                ventana,
-                "Elige una carta",
-                "Jugar carta",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.INFORMATION_MESSAGE,
-                null,
-                opciones,
-                opciones[0]
-        );
+        int sel = JOptionPane.showOptionDialog(ventana, "Elige una carta para jugar:", "Jugar carta",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, opciones, opciones[0]);
+        if (sel == -1) return;
 
-        if (seleccion != -1) {
-            juego.jugarCartaDesdeMano(seleccion);
-            ventana.actualizarInterfaz();
-            ventana.setLog("Carta jugada: " + opciones[seleccion]);
+        // Si es monstruo, preguntar posición
+        Carta carta = mano.get(sel);
+        if (carta instanceof Monstruo) {
+            String[] modos = {"Posición Ataque", "Posición Defensa"};
+            int modo = JOptionPane.showOptionDialog(ventana, "¿En qué posición invocar?", "Posición",
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, modos, modos[0]);
+            if (modo == -1) return;
+
+            Monstruo m = (Monstruo) carta;
+            if (m.getNivel() > 4 && juego.getJugadorActual().getCampo().getCantidadMonstruos() == 0) {
+                ventana.setLog("Necesitas sacrificar un monstruo para invocar a " + m.getNombre() + " (nivel " + m.getNivel() + ").");
+                return;
+            }
+            juego.jugarCartaDesdeMano(sel);
+            // Aplicar posición elegida al monstruo recién invocado
+            List<Monstruo> campo = juego.getJugadorActual().getCampo().getMonstruos();
+            if (!campo.isEmpty()) campo.get(campo.size() - 1).setEnPosicionAtaque(modo == 0);
+        } else {
+            juego.jugarCartaDesdeMano(sel);
         }
+
+        ventana.setLog("Carta jugada: " + opciones[sel]);
+        ventana.actualizarInterfaz();
+        verificarGanador();
     }
 
     private void atacarGUI() {
-        //Esto para pruebas, lo voy a dejar por ahora cuando terminen las pruebas lo pueden quitar(Aunque no afecta nada solo es consola)
-        System.out.println("\n===== DEBUG ATAQUE =====");
-        System.out.println("Jugador actual: " + juego.getJugadorActual().getNombre());
-        System.out.println("Oponente: " + juego.getOponente().getNombre());
-
         Jugador actual = juego.getJugadorActual();
-        Jugador rival = juego.getOponente();
-
-        // DEBUG CAMPOS --Prueba
-        System.out.println("Monstruos actual: " + actual.getCampo().getMonstruos().size());
-        System.out.println("Monstruos rival: " + rival.getCampo().getMonstruos().size());
+        Jugador rival  = juego.getOponente();
 
         if (actual.getCampo().getMonstruos().isEmpty()) {
-            ventana.setLog("No tienes monstruos para atacar");
+            ventana.setLog("No tienes monstruos para atacar.");
             return;
         }
 
-        String[] atacantes = actual.getCampo().getMonstruos()
-                .stream()
-                .map(m -> m.getNombre() + " ATK:" + m.getAtk())
+        // Seleccionar atacante
+        List<Monstruo> misMonst = actual.getCampo().getMonstruos();
+        String[] atacantes = misMonst.stream()
+                .map(m -> m.getNombre() + " ATK:" + m.getAtk() + (m.isYaAtaco() ? " (ya atacó)" : ""))
                 .toArray(String[]::new);
 
-        int indexAtacante = JOptionPane.showOptionDialog(
-                ventana,
-                "Elige tu monstruo atacante",
-                "Atacar",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.INFORMATION_MESSAGE,
-                null,
-                atacantes,
-                atacantes[0]
-        );
+        int idxAtacante = JOptionPane.showOptionDialog(ventana, "Elige tu monstruo atacante:", "Atacar",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, atacantes, atacantes[0]);
+        if (idxAtacante == -1) return;
 
-        if (indexAtacante == -1) return;
-
-        // DEBUG ATK -- Prueba
-        Monstruo atacante = actual.getCampo().getMonstruos().get(indexAtacante);
-        System.out.println("ATACANTE ELEGIDO: " + atacante.getNombre());
-
-        if (rival.getCampo().getMonstruos().isEmpty()) {
-
-            System.out.println("ATAQUE DIRECTO");
-
-            String resultado = juego.atacar(indexAtacante, 0);
-            ventana.setLog(resultado);
-            ventana.actualizarInterfaz();
-
-            verificarGanador(resultado);
+        if (misMonst.get(idxAtacante).isYaAtaco()) {
+            ventana.setLog(misMonst.get(idxAtacante).getNombre() + " ya atacó este turno.");
             return;
         }
 
-        String[] defensores = rival.getCampo().getMonstruos()
-                .stream()
-                .map(m -> m.getNombre() + " ATK:" + m.getAtk())
-                .toArray(String[]::new);
-
-        int indexDefensor = JOptionPane.showOptionDialog(
-                ventana,
-                "Elige el monstruo enemigo",
-                "Defensor",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.INFORMATION_MESSAGE,
-                null,
-                defensores,
-                defensores[0]
-        );
-
-        if (indexDefensor == -1) return;
-
-        // DEBUG DEF -- Prueba
-        Monstruo defensor = rival.getCampo().getMonstruos().get(indexDefensor);
-        System.out.println("DEFENSOR ELEGIDO: " + defensor.getNombre());
-
-        // VALIDACIÓN 
-        if (actual == rival) {
-            System.out.println("ERROR: actual y rival son el mismo objeto");
-            ventana.setLog("Error interno: jugador incorrecto");
-            return;
+        // Ataque directo o seleccionar defensor
+        int idxDefensor = 0;
+        if (!rival.getCampo().getMonstruos().isEmpty()) {
+            List<Monstruo> rivMonst = rival.getCampo().getMonstruos();
+            String[] defensores = rivMonst.stream()
+                    .map(m -> m.getNombre() + " [" + (m.isEnPosicionAtaque() ? "ATK:" + m.getAtk() : "DEF:" + m.getDef()) + "]")
+                    .toArray(String[]::new);
+            idxDefensor = JOptionPane.showOptionDialog(ventana, "Elige el monstruo enemigo:", "Defensor",
+                    JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, defensores, defensores[0]);
+            if (idxDefensor == -1) return;
         }
 
-        String resultado = juego.atacar(indexAtacante, indexDefensor);
-
+        String resultado = juego.atacar(idxAtacante, idxDefensor);
         ventana.setLog(resultado);
         ventana.actualizarInterfaz();
+        verificarGanador();
+    }
 
-        verificarGanador(resultado);
+    private void activarTrampaGUI() {
+        List<CartaTrampa> trampas = juego.getJugadorActual().getCampo().getCartasTrampa();
+        if (trampas.isEmpty()) { ventana.setLog("No tienes trampas en el campo."); return; }
+
+        String[] opciones = trampas.stream().map(Carta::getNombre).toArray(String[]::new);
+        int sel = JOptionPane.showOptionDialog(ventana, "Elige una trampa para activar:", "Activar trampa",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, opciones, opciones[0]);
+        if (sel == -1) return;
+
+        String resultado = juego.activarTrampa(sel);
+        ventana.setLog(resultado);
+        ventana.actualizarInterfaz();
+        verificarGanador();
     }
 
     private void terminarTurnoGUI() {
-
         juego.cambiarTurno();
-
         Jugador actual = juego.getJugadorActual();
-        //Consola
-        System.out.println("\n===== CAMBIO DE TURNO =====");
-        System.out.println("Nuevo jugador actual: " + actual.getNombre());
 
         Carta robada = actual.getMazo().robarCarta();
-
         if (robada != null) {
             actual.getMano().add(robada);
-            ventana.setLog("Turno de " + actual.getNombre() + " | Roba: " + robada.getNombre());
+            ventana.setLog("Turno de " + actual.getNombre() + " | Robó: " + robada.getNombre());
         } else {
-            ventana.setLog(actual.getNombre() + " no puede robar. Pierde.");
+            ventana.setLog(actual.getNombre() + " no puede robar carta. ¡Pierde el duelo!");
+            mostrarGanador(juego.getOponente().getNombre());
             return;
         }
 
+        ventana.setTurno(juego.getNumeroTurno());
         ventana.actualizarInterfaz();
     }
 
-    private void verificarGanador(String resultado) {
-        if (juego.getOponente().getPuntosVida() <= 0) {
-            ventana.setLog(resultado + " | Gana " + juego.getJugadorActual().getNombre());
+    private void verificarGanador() {
+        if (juego.hayGanador()) mostrarGanador(juego.getNombreGanador());
+    }
 
-            ventana.getBtnAtacar().setEnabled(false);
-            ventana.getBtnJugarCarta().setEnabled(false);
-            ventana.getBtnTerminarTurno().setEnabled(false);
+    private void mostrarGanador(String nombre) {
+        ventana.getBtnAtacar().setEnabled(false);
+        ventana.getBtnJugarCarta().setEnabled(false);
+        ventana.getBtnTerminarTurno().setEnabled(false);
+        ventana.getBtnActivarTrampa().setEnabled(false);
 
-            System.out.println("===== FIN DEL JUEGO =====");//Tambien consla
-        }
+        String mensaje = "<html><center>" +
+                "<font size='5' color='#C9A84C'><b>¡DUELO TERMINADO!</b></font><br><br>" +
+                "<font size='4' color='white'>¡<b>" + nombre + "</b> gana el duelo!</font><br><br>" +
+                "<font size='3' color='gray'><i>\"Confía en el corazón de las cartas\"</i></font>" +
+                "</center></html>";
+
+        JOptionPane.showMessageDialog(ventana, mensaje, "Yu-Gi-Oh!", JOptionPane.PLAIN_MESSAGE);
     }
 }

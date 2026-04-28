@@ -1,8 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
 
-//Voy a poner comentarios para que Perea se guie, luego los borran
-
 public class Campo {
     private List<Monstruo> monstruos;
     private List<CartaMagica> cartasMagicas;
@@ -14,50 +12,37 @@ public class Campo {
         this.cartasTrampa = new ArrayList<>();
     }
 
-    // Con esto se colocan los monstruos en el campo
-    public void colocarMonstruo(Monstruo monstruo) {
+    public void colocarMonstruo(Monstruo monstruo){
         monstruos.add(monstruo);
-        System.out.println("Monstruo " + monstruo.getNombre() + " colocado en el campo.");
-        //System.out.println("Cantidad de monstruos ahora: " + monstruos.size());1  Si quieren verificar que no hay errores en cuanto a la lista de monstruos descomenten esto
     }
-
-    // Con esto se colocan las cartas mágicas en el campo
-    public void colocarCartaMagica(CartaMagica cartaMagica) {
+    public void colocarCartaMagica(CartaMagica cartaMagica){
         cartasMagicas.add(cartaMagica);
-        System.out.println("Carta mágica " + cartaMagica.getNombre() + " colocada en el campo.");
     }
-
-    // Con esto se colocan las cartas trampa en el campo
-    public void colocarCartaTrampa(CartaTrampa cartaTrampa) {
+    public void colocarCartaTrampa(CartaTrampa cartaTrampa){
         cartasTrampa.add(cartaTrampa);
-        System.out.println("Carta trampa " + cartaTrampa.getNombre() + " colocada en el campo.");
     }
-
-    // Con esto se quita un monstruo del campo
-    public void quitarMonstruo(Monstruo monstruo) {
-        monstruos.remove(monstruo);
-        System.out.println("Monstruo " + monstruo.getNombre() + " retirado del campo.");
-    }
-
-    // Con esto se ve cuántos monstruos hay en el campo
-    public int getCantidadMonstruos() {
+    public void quitarMonstruo(Monstruo monstruo){
+        monstruos.remove(monstruo)
+        ;}
+    public int getCantidadMonstruos(){
         return monstruos.size();
     }
 
-    //setters y getters
-    public List<Monstruo> getMonstruos() {
+    public List<Monstruo>    getMonstruos(){
         return monstruos;
     }
-
-    public void setMonstruos(List<Monstruo> monstruos) {
-        this.monstruos = monstruos;
+    public void setMonstruos(List<Monstruo> m){
+        this.monstruos = m;
     }
-
-    public List<CartaMagica> getCartasMagicas() {
+    public List<CartaMagica> getCartasMagicas(){
         return cartasMagicas;
     }
-
-    public void setCartasMagicas(List<CartaMagica> cartasMagicas) {
-        this.cartasMagicas = cartasMagicas;
+    public void setCartasMagicas(List<CartaMagica> c) {
+        this.cartasMagicas = c;
+    }
+    public List<CartaTrampa> getCartasTrampa()  {
+        return cartasTrampa;
+    }
+    public void setCartasTrampa(List<CartaTrampa> c){this.cartasTrampa = c;
     }
 }
