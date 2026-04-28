@@ -25,6 +25,18 @@ public class VentanaDuelo extends JFrame {
     private Jugador jugador1;
     private Jugador jugador2;
 
+    public JButton getBtnJugarCarta() {
+        return btnJugarCarta;
+    }
+
+    public JButton getBtnAtacar() {
+        return btnAtacar;
+    }
+
+    public JButton getBtnTerminarTurno() {
+        return btnTerminarTurno;
+    }
+
     public VentanaDuelo(Jugador j1, Jugador j2) {
         this.jugador1 = j1;
         this.jugador2 = j2;
@@ -239,10 +251,6 @@ public class VentanaDuelo extends JFrame {
         estilizarBoton(btnAtacar,        new Color(224, 64,  64));
         estilizarBoton(btnTerminarTurno, new Color(122, 112, 96));
 
-        btnJugarCarta.addActionListener(e    -> accionJugarCarta());
-        btnAtacar.addActionListener(e        -> accionAtacar());
-        btnTerminarTurno.addActionListener(e -> accionTerminarTurno());
-
         botones.add(btnJugarCarta);
         botones.add(btnAtacar);
         footer.add(botones, BorderLayout.WEST);
@@ -269,20 +277,6 @@ public class VentanaDuelo extends JFrame {
         btn.setFont(new Font("SansSerif", Font.BOLD, 10));
         btn.setFocusPainted(false);
         btn.setBorder(BorderFactory.createLineBorder(color, 1));
-    }
-
-    private void accionJugarCarta() {
-        setLog("Jugando una carta...");
-    }
-
-    private void accionAtacar() {
-        setLog("Iniciando fase de batalla...");
-        // TODO: llamar juego.faseDeBatalla() y después actualizarInterfaz()
-    }
-
-    private void accionTerminarTurno() {
-        setLog("Turno terminado.");
-        // TODO: llamar juego.cambiarTurno() y después actualizarInterfaz()
     }
 
     //  ACTUALIZAR INTERFAZ — Se llama después de cada acción para refrescar la pantalla
@@ -322,9 +316,8 @@ public class VentanaDuelo extends JFrame {
     }
 
     
-    //  MAIN DE PRUEBA
-    
-    public static void main(String[] args) {
+    //  MAIN DE PRUEBA 
+/*  public static void main(String[] args) {
         java.util.List<Carta> mano1 = new java.util.ArrayList<>();
         java.util.List<Carta> mano2 = new java.util.ArrayList<>();
 
@@ -340,4 +333,5 @@ public class VentanaDuelo extends JFrame {
 
         new VentanaDuelo(j1, j2);
     }
+    */
 }

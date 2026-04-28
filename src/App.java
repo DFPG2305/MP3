@@ -10,6 +10,8 @@ public class App {
             j1.getMano().add(j1.getMazo().robarCarta());
             j2.getMano().add(j2.getMazo().robarCarta());
         }
-        new VentanaDuelo(j1, j2);
+        VentanaDuelo ventana = new VentanaDuelo(j1, j2);
+        Juego juego = new Juego(j1, j2);
+        new ControladorJuego(juego, ventana);
     }
 }
