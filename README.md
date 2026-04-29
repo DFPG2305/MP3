@@ -2,6 +2,12 @@
 
 ## Commit 1
 
+* Primero, cree la interfaz grafica haciendo uso de algunos consejos que me dió mi monitor ASES, como el uso de PaintComponent con cosas como el repaint para refrescar las ventanas o la clase Wraplayout la cual organiza las cartas automaticamente
+
+* Utilice varios comandos para hacer la base de la interfaz, entre ellos el JFrame para la ventana principal, el JPanel para las secciones, JLabel para el texto y JButon para los botones, ademas de setBackground y setForeground para el tema de los colores entre otros muchos otros comandos
+
+* Despues de hacer la interfaz grafica, me tome el tiempo de releer todo el documento y agregar los nuevos requisitos, como lo eran las cartas trampa, el mazo paso a ser de 50 y no de 40, etc. Para esto me tome el tiempo de crear 3 clases nuevas, la de cartas trampa y dos cartas trampas, ademas de editar la clase de monstruos
+
 ## Commit 2
 
 * Agregué la lógica de los botones para jugar carta, atacar y terminar turno, conectándolos correctamente con la lógica del juego mediante una clase controladora que se encarga de comunicar la interfaz con las acciones del juego.
