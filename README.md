@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # MP3
 ## Commit 1
 * Se agregó la selección manual de sacrificios para monstruos de nivel alto. Ahora el jugador puede elegir qué monstruo del campo desea sacrificar al invocar cartas que requieren tributo, en lugar de sacrificar automáticamente el primer monstruo disponible.
@@ -20,4 +19,3 @@
 * Diego Fernando Pérez - 2559956
 * Andrés David Perea - 2559770
 
->>>>>>> d4d7c13fca7f2a92d5dbc8e31ca772ad830f83eb
