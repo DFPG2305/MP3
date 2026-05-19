@@ -11,4 +11,10 @@ public class PotOfGreed extends CartaMagica {
             if (carta != null) jugadorActivo.getMano().add(carta);
         }
     }
+
+    @Override
+    public String getDescripcion() {
+        return "Roba 2 cartas de tu mazo.";
+    }
+
 }

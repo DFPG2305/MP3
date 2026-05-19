@@ -31,33 +31,47 @@ public class Juego {
         oponente.setPrimerTurno(false);
     }
 
-    public void jugarCartaDesdeMano(int index) {
+    public void jugarCartaDesdeMano(int index, int indexSacrificio) {
+
         if (cartaJugadasEnTurno) return;
 
         List<Carta> mano = jugadorActual.getMano();
+
         if (mano.isEmpty() || index < 0 || index >= mano.size()) return;
 
         Carta carta = mano.get(index);
 
         if (carta instanceof Monstruo) {
+
             Monstruo m = (Monstruo) carta;
-            // Sacrificio para nivel > 4
+
+            // Sacrificio para nivel alto
             if (m.getNivel() > 4) {
-                if (jugadorActual.getCampo().getCantidadMonstruos() == 0) return;
-                Monstruo sacrificio = jugadorActual.getCampo().getMonstruos().get(0);
+
+                List<Monstruo> monstruosCampo = jugadorActual.getCampo().getMonstruos();
+
+                if (monstruosCampo.isEmpty()) return;
+
+                if (indexSacrificio < 0 || indexSacrificio >= monstruosCampo.size()) return;
+
+                Monstruo sacrificio = monstruosCampo.get(indexSacrificio);
+
                 jugadorActual.getCampo().quitarMonstruo(sacrificio);
             }
+
             jugadorActual.getCampo().colocarMonstruo(m);
 
         } else if (carta instanceof CartaMagica) {
+
             ((CartaMagica) carta).activar(jugadorActual, oponente);
 
         } else if (carta instanceof CartaTrampa) {
-            // Las trampas se colocan boca abajo en el campo
+
             jugadorActual.getCampo().colocarCartaTrampa((CartaTrampa) carta);
         }
 
         mano.remove(index);
+
         cartaJugadasEnTurno = true;
     }
 

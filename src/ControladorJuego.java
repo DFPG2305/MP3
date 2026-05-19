@@ -29,9 +29,18 @@ public class ControladorJuego {
             Carta c = mano.get(i);
             if (c instanceof Monstruo) {
                 Monstruo m = (Monstruo) c;
-                opciones[i] = m.getNombre() + " " + m.getEstrellas() + " ATK:" + m.getAtk() + " DEF:" + m.getDef();
+
+                opciones[i] = m.getNombre()
+                        + " "
+                        + m.getEstrellas()
+                        + " ATK:" + m.getAtk()
+                        + " DEF:" + m.getDef();
             } else {
-                opciones[i] = "[" + (c instanceof CartaMagica ? "MAGIA" : "TRAMPA") + "] " + c.getNombre();
+                String tipo = (c instanceof CartaMagica) ? "MAGIA" : "TRAMPA";           
+                opciones[i] = "[" + tipo + "] "
+                        + c.getNombre()
+                        + " - "
+                        + c.getDescripcion();
             }
         }
 
@@ -48,16 +57,41 @@ public class ControladorJuego {
             if (modo == -1) return;
 
             Monstruo m = (Monstruo) carta;
-            if (m.getNivel() > 4 && juego.getJugadorActual().getCampo().getCantidadMonstruos() == 0) {
-                ventana.setLog("Necesitas sacrificar un monstruo para invocar a " + m.getNombre() + " (nivel " + m.getNivel() + ").");
-                return;
-            }
-            juego.jugarCartaDesdeMano(sel);
+            int indexSacrificio = -1;
+
+    if (m.getNivel() > 4) {
+
+        List<Monstruo> monstruosCampo = juego.getJugadorActual().getCampo().getMonstruos();
+
+        if (monstruosCampo.isEmpty()) {
+            ventana.setLog("Necesitas un monstruo para sacrificar.");
+            return;
+        }
+
+        String[] opcionesSacrificio = monstruosCampo.stream()
+                .map(mon -> mon.getNombre() + " ATK:" + mon.getAtk())
+                .toArray(String[]::new);
+
+        indexSacrificio = JOptionPane.showOptionDialog(
+                ventana,
+                "Elige el monstruo a sacrificar:",
+                "Sacrificio",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null,
+                opcionesSacrificio,
+                opcionesSacrificio[0]
+        );
+
+        if (indexSacrificio == -1) return;
+    }
+
+        juego.jugarCartaDesdeMano(sel, indexSacrificio);
             // Aplicar posición elegida al monstruo recién invocado
             List<Monstruo> campo = juego.getJugadorActual().getCampo().getMonstruos();
             if (!campo.isEmpty()) campo.get(campo.size() - 1).setEnPosicionAtaque(modo == 0);
         } else {
-            juego.jugarCartaDesdeMano(sel);
+            juego.jugarCartaDesdeMano(sel, -1);
         }
 
         ventana.setLog("Carta jugada: " + opciones[sel]);

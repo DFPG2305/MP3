@@ -13,4 +13,10 @@ public class TrapHole extends CartaTrampa {
             jugadorRival.getCampo().quitarMonstruo(objetivo);
         }
     }
+
+    @Override
+    public String getDescripcion() {
+        return "Destruye un monstruo enemigo con más de 1000 ATK.";
+    }
+
 }

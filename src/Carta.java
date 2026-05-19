@@ -12,4 +12,8 @@ public abstract class Carta {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
+
+    public String getDescripcion() {
+        return "Carta sin descripción.";
+    }
 }
