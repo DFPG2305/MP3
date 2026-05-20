@@ -12,7 +12,10 @@
 *Se agrego el archivo PDF "Minitutorial" el cual contiene las fuentes que se usaron para desarrollar la parte estetica de las cartas, adicionalmente de explicar el como funcionaban cada una de estas clases y el porque se tomo la desicion de utilizarlas
 
 ## Commit 3
-
+* Se pasó el código a MVC, separando modelo, vista y controlador
+* Se creó "ControladorMenu" para manejar el inicio del duelo
+* "MenuInicio" y "VentanaDuelo" se convirtieron en vistas puras, sin lógica ni referencias al modelo
+* "ControladorJuego" quedó como el único puente entre la vista y el modelo durante el juego
 
 ## Autores
 

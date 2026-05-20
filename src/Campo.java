@@ -43,6 +43,7 @@ public class Campo {
     public List<CartaTrampa> getCartasTrampa()  {
         return cartasTrampa;
     }
-    public void setCartasTrampa(List<CartaTrampa> c){this.cartasTrampa = c;
+    public void setCartasTrampa(List<CartaTrampa> c){
+        this.cartasTrampa = c;
     }
 }

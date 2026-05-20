@@ -47,7 +47,7 @@ public class Juego {
 
             Monstruo m = (Monstruo) carta;
 
-            // Sacrificio para nivel alto
+            // Sacrificio para monstruos fuertes
             if (m.getNivel() > 4) {
 
                 List<Monstruo> monstruosCampo = jugadorActual.getCampo().getMonstruos();
@@ -96,7 +96,7 @@ public class Juego {
         Monstruo atacante = monstruosActuales.get(indexAtacante);
         if (atacante.isYaAtaco()) return atacante.getNombre() + " ya atacó este turno.";
 
-        // Ataque directo
+        // Ataques
         if (oponente.getCampo().getCantidadMonstruos() == 0) {
             oponente.setPuntosVida(oponente.getPuntosVida() - atacante.getAtk());
             atacante.setYaAtaco(true);
@@ -110,7 +110,7 @@ public class Juego {
         atacante.setYaAtaco(true);
 
         if (defensor.isEnPosicionAtaque()) {
-            // ATK vs ATK
+            // atacanta a atacante
             if (atacante.getAtk() > defensor.getAtk()) {
                 int daño = atacante.getAtk() - defensor.getAtk();
                 oponente.setPuntosVida(oponente.getPuntosVida() - daño);
@@ -127,7 +127,7 @@ public class Juego {
                 return "Ambos monstruos fueron destruidos.";
             }
         } else {
-            // ATK vs DEF
+            // atacante a defensa
             if (atacante.getAtk() > defensor.getDef()) {
                 oponente.getCampo().quitarMonstruo(defensor);
                 return "Destruiste a " + defensor.getNombre() + " en posición de defensa. Sin daño a LP.";
