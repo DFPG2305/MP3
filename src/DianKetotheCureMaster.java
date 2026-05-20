@@ -1,7 +1,7 @@
-public class DianKeto extends CartaMagica {
+public class DianKetotheCureMaster extends CartaMagica {
 
-    public DianKeto() {
-        super("Dian Keto");
+    public DianKetotheCureMaster() {
+        super("Dian Keto the Cure Master");
     }
 
     @Override
@@ -11,7 +11,6 @@ public class DianKeto extends CartaMagica {
 
     @Override
     public String getDescripcion() {
-        return "Aumenta tus puntos de vida en 1000.";
+        return "Cura 1000 puntos de vida del jugador activo.";
     }
-
 }

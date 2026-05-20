@@ -45,11 +45,11 @@ public class InicializadorMazo {
         todasLasCartas.add(new PotOfGreed());
         todasLasCartas.add(new PotOfGreed());
         todasLasCartas.add(new PotOfGreed());
-        todasLasCartas.add(new DianKeto());
-        todasLasCartas.add(new DianKeto());
-        todasLasCartas.add(new DianKeto());
-        todasLasCartas.add(new DianKeto());
-        todasLasCartas.add(new DianKeto());
+        todasLasCartas.add(new DianKetotheCureMaster());
+        todasLasCartas.add(new DianKetotheCureMaster());
+        todasLasCartas.add(new DianKetotheCureMaster());
+        todasLasCartas.add(new DianKetotheCureMaster());
+        todasLasCartas.add(new DianKetotheCureMaster());
 
         // Cartas Trampa
         todasLasCartas.add(new TrapHole());
