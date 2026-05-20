@@ -17,7 +17,32 @@ public class ControladorJuego {
 
         ventana.setLog("¡El duelo comienza! Turno de " + juego.getJugadorActual().getNombre());
         ventana.setTurno(juego.getNumeroTurno());
-        ventana.actualizarInterfaz();
+        actualizarVista();
+    }
+
+    private void actualizarVista() {
+        Jugador j1 = juego.getJugador1();
+        Jugador j2 = juego.getJugador2();
+
+        ventana.actualizarInterfaz(
+            j1.getPuntosVida(), j2.getPuntosVida(),
+            j1.getMazo() != null ? j1.getMazo().getCantidadCartas() : 0,
+            j2.getMazo() != null ? j2.getMazo().getCantidadCartas() : 0,
+            j1.getMano() != null ? j1.getMano().size() : 0,
+            j2.getMano() != null ? j2.getMano().size() : 0,
+            j1.getCampo() != null ? j1.getCampo().getCantidadMonstruos() : 0,
+            j2.getCampo() != null ? j2.getCampo().getCantidadMonstruos() : 0,
+            j1.getCampo() != null ? j1.getCampo().getCartasTrampa().size() : 0,
+            j2.getCampo() != null ? j2.getCampo().getCartasTrampa().size() : 0,
+            j1.getMano(),
+            j2.getMano(),
+            j1.getCampo() != null ? j1.getCampo().getMonstruos() : null,
+            j2.getCampo() != null ? j2.getCampo().getMonstruos() : null,
+            j1.getCampo() != null ? j1.getCampo().getCartasMagicas() : null,
+            j2.getCampo() != null ? j2.getCampo().getCartasMagicas() : null,
+            j1.getCampo() != null ? j1.getCampo().getCartasTrampa() : null,
+            j2.getCampo() != null ? j2.getCampo().getCartasTrampa() : null
+        );
     }
 
     private void jugarCartaGUI() {
@@ -29,18 +54,10 @@ public class ControladorJuego {
             Carta c = mano.get(i);
             if (c instanceof Monstruo) {
                 Monstruo m = (Monstruo) c;
-
-                opciones[i] = m.getNombre()
-                        + " "
-                        + m.getEstrellas()
-                        + " ATK:" + m.getAtk()
-                        + " DEF:" + m.getDef();
+                opciones[i] = m.getNombre() + " " + m.getEstrellas() + " ATK:" + m.getAtk() + " DEF:" + m.getDef();
             } else {
-                String tipo = (c instanceof CartaMagica) ? "MAGIA" : "TRAMPA";           
-                opciones[i] = "[" + tipo + "] "
-                        + c.getNombre()
-                        + " - "
-                        + c.getDescripcion();
+                String tipo = (c instanceof CartaMagica) ? "MAGIA" : "TRAMPA";
+                opciones[i] = "[" + tipo + "] " + c.getNombre() + " - " + c.getDescripcion();
             }
         }
 
@@ -48,7 +65,6 @@ public class ControladorJuego {
                 JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, opciones, opciones[0]);
         if (sel == -1) return;
 
-        // Si es monstruo, preguntar posición
         Carta carta = mano.get(sel);
         if (carta instanceof Monstruo) {
             String[] modos = {"Posición Ataque", "Posición Defensa"};
@@ -59,35 +75,21 @@ public class ControladorJuego {
             Monstruo m = (Monstruo) carta;
             int indexSacrificio = -1;
 
-    if (m.getNivel() > 4) {
+            if (m.getNivel() > 4) {
+                List<Monstruo> monstruosCampo = juego.getJugadorActual().getCampo().getMonstruos();
+                if (monstruosCampo.isEmpty()) {
+                    ventana.setLog("Necesitas un monstruo para sacrificar.");
+                    return;
+                }
+                String[] opcionesSacrificio = monstruosCampo.stream()
+                        .map(mon -> mon.getNombre() + " ATK:" + mon.getAtk())
+                        .toArray(String[]::new);
+                indexSacrificio = JOptionPane.showOptionDialog(ventana, "Elige el monstruo a sacrificar:", "Sacrificio",
+                        JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, null, opcionesSacrificio, opcionesSacrificio[0]);
+                if (indexSacrificio == -1) return;
+            }
 
-        List<Monstruo> monstruosCampo = juego.getJugadorActual().getCampo().getMonstruos();
-
-        if (monstruosCampo.isEmpty()) {
-            ventana.setLog("Necesitas un monstruo para sacrificar.");
-            return;
-        }
-
-        String[] opcionesSacrificio = monstruosCampo.stream()
-                .map(mon -> mon.getNombre() + " ATK:" + mon.getAtk())
-                .toArray(String[]::new);
-
-        indexSacrificio = JOptionPane.showOptionDialog(
-                ventana,
-                "Elige el monstruo a sacrificar:",
-                "Sacrificio",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.WARNING_MESSAGE,
-                null,
-                opcionesSacrificio,
-                opcionesSacrificio[0]
-        );
-
-        if (indexSacrificio == -1) return;
-    }
-
-        juego.jugarCartaDesdeMano(sel, indexSacrificio);
-            // Aplicar posición elegida al monstruo recién invocado
+            juego.jugarCartaDesdeMano(sel, indexSacrificio);
             List<Monstruo> campo = juego.getJugadorActual().getCampo().getMonstruos();
             if (!campo.isEmpty()) campo.get(campo.size() - 1).setEnPosicionAtaque(modo == 0);
         } else {
@@ -95,7 +97,7 @@ public class ControladorJuego {
         }
 
         ventana.setLog("Carta jugada: " + opciones[sel]);
-        ventana.actualizarInterfaz();
+        actualizarVista();
         verificarGanador();
     }
 
@@ -108,7 +110,6 @@ public class ControladorJuego {
             return;
         }
 
-        // Seleccionar atacante
         List<Monstruo> misMonst = actual.getCampo().getMonstruos();
         String[] atacantes = misMonst.stream()
                 .map(m -> m.getNombre() + " ATK:" + m.getAtk() + (m.isYaAtaco() ? " (ya atacó)" : ""))
@@ -123,7 +124,6 @@ public class ControladorJuego {
             return;
         }
 
-        // Ataque directo o seleccionar defensor
         int idxDefensor = 0;
         if (!rival.getCampo().getMonstruos().isEmpty()) {
             List<Monstruo> rivMonst = rival.getCampo().getMonstruos();
@@ -137,7 +137,7 @@ public class ControladorJuego {
 
         String resultado = juego.atacar(idxAtacante, idxDefensor);
         ventana.setLog(resultado);
-        ventana.actualizarInterfaz();
+        actualizarVista();
         verificarGanador();
     }
 
@@ -152,7 +152,7 @@ public class ControladorJuego {
 
         String resultado = juego.activarTrampa(sel);
         ventana.setLog(resultado);
-        ventana.actualizarInterfaz();
+        actualizarVista();
         verificarGanador();
     }
 
@@ -171,7 +171,7 @@ public class ControladorJuego {
         }
 
         ventana.setTurno(juego.getNumeroTurno());
-        ventana.actualizarInterfaz();
+        actualizarVista();
     }
 
     private void verificarGanador() {
@@ -179,17 +179,12 @@ public class ControladorJuego {
     }
 
     private void mostrarGanador(String nombre) {
-        ventana.getBtnAtacar().setEnabled(false);
-        ventana.getBtnJugarCarta().setEnabled(false);
-        ventana.getBtnTerminarTurno().setEnabled(false);
-        ventana.getBtnActivarTrampa().setEnabled(false);
-
+        ventana.deshabilitarAcciones();
         String mensaje = "<html><center>" +
                 "<font size='5' color='#C9A84C'><b>¡DUELO TERMINADO!</b></font><br><br>" +
                 "<font size='4' color='white'>¡<b>" + nombre + "</b> gana el duelo!</font><br><br>" +
                 "<font size='3' color='gray'><i>\"Confía en el corazón de las cartas\"</i></font>" +
                 "</center></html>";
-
         JOptionPane.showMessageDialog(ventana, mensaje, "Yu-Gi-Oh!", JOptionPane.PLAIN_MESSAGE);
     }
 }

@@ -1,11 +1,11 @@
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 
 public class MenuInicio extends JFrame {
 
     private JTextField campoNombre1;
     private JTextField campoNombre2;
+    private JButton btnIniciar;
 
     public MenuInicio() {
         setTitle("Yu-Gi-Oh! - Inicio");
@@ -19,7 +19,6 @@ public class MenuInicio extends JFrame {
     }
 
     private void initComponents() {
-        // Título
         JLabel titulo = new JLabel("YU-GI-OH!", SwingConstants.CENTER);
         titulo.setFont(new Font("Serif", Font.BOLD, 30));
         titulo.setForeground(new Color(201, 168, 76));
@@ -27,7 +26,6 @@ public class MenuInicio extends JFrame {
         titulo.setOpaque(false);
         add(titulo, BorderLayout.NORTH);
 
-        // Panel central con campos
         JPanel centro = new JPanel(new GridBagLayout());
         centro.setBackground(new Color(10, 12, 16));
         GridBagConstraints gbc = new GridBagConstraints();
@@ -65,8 +63,7 @@ public class MenuInicio extends JFrame {
 
         add(centro, BorderLayout.CENTER);
 
-        // Botón
-        JButton btnIniciar = new JButton("¡DUELAR!");
+        btnIniciar = new JButton("¡DUELAR!");
         btnIniciar.setFont(new Font("SansSerif", Font.BOLD, 14));
         btnIniciar.setForeground(new Color(201, 168, 76));
         btnIniciar.setBackground(new Color(10, 12, 16));
@@ -78,36 +75,13 @@ public class MenuInicio extends JFrame {
         sur.setBorder(BorderFactory.createEmptyBorder(0, 0, 16, 0));
         sur.add(btnIniciar);
         add(sur, BorderLayout.SOUTH);
-
-        btnIniciar.addActionListener(e -> iniciarDuelo());
-        campoNombre1.addActionListener(e -> iniciarDuelo());
-        campoNombre2.addActionListener(e -> iniciarDuelo());
     }
 
-    private void iniciarDuelo() {
-        String n1 = campoNombre1.getText().trim();
-        String n2 = campoNombre2.getText().trim();
-        if (n1.isEmpty() || n2.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor ingresa los nombres de ambos duelistas.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        if (n1.equals(n2)) {
-            JOptionPane.showMessageDialog(this, "Los nombres deben ser diferentes.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+    public String getNombre1() { return campoNombre1.getText().trim(); }
+    public String getNombre2() { return campoNombre2.getText().trim(); }
+    public JButton getBtnIniciar() { return btnIniciar; }
 
-        Jugador j1 = new Jugador(n1, 8000, new ArrayList<>(), null, new Campo());
-        Jugador j2 = new Jugador(n2, 8000, new ArrayList<>(), null, new Campo());
-        InicializadorMazo.repartirCartas(j1, j2);
-        for (int i = 0; i < 5; i++) {
-            j1.getMano().add(j1.getMazo().robarCarta());
-            j2.getMano().add(j2.getMazo().robarCarta());
-        }
-
-        VentanaDuelo ventana = new VentanaDuelo(j1, j2);
-        Juego juego = new Juego(j1, j2);
-        new ControladorJuego(juego, ventana);
-
-        this.dispose();
+    public void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
     }
 }

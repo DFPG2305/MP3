@@ -13,6 +13,8 @@ public class Juego {
 
     public Jugador getJugadorActual(){ return jugadorActual; }
     public Jugador getOponente(){ return oponente; }
+    public Jugador getJugador1(){ return jugador1; }
+    public Jugador getJugador2(){ return jugador2; }
     public int getNumeroTurno(){ return numeroTurno; }
 
     public Juego(Jugador j1, Jugador j2) {

@@ -3,13 +3,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.List;
 
-/**
- * VISTA del duelo — Con integración de renderizado dinámico de cartas en mano,
- * slots de campo funcionales y compatibilidad directa con ControladorJuego.
- */
 public class VentanaDuelo extends JFrame {
 
-    // Colores de la paleta (Estilo campo de duelo oscuro)
     private static final Color C_BG_DARK   = new Color( 10,  12,  16);
     private static final Color C_BG_PANEL  = new Color( 18,  22,  30);
     private static final Color C_BG_CAMPO  = new Color( 14,  16,  24);
@@ -19,7 +14,6 @@ public class VentanaDuelo extends JFrame {
     private static final Color C_LILA      = new Color(180, 140, 220);
     private static final Color C_TEXTO     = new Color(232, 224, 204);
 
-    // Labels de estado / estadísticas laterales
     private JLabel lblLPJ1, lblLPJ2;
     private JLabel lblMazo1, lblMazo2;
     private JLabel lblMano1, lblMano2;
@@ -27,93 +21,80 @@ public class VentanaDuelo extends JFrame {
     private JLabel lblTrampa1, lblTrampa2;
     private JLabel lblTurno, lblLog;
 
-    // Botones de acción del footer
     private JButton btnJugarCarta;
     private JButton btnAtacar;
     private JButton btnActivarTrampa;
     private JButton btnTerminarTurno;
 
-    // Paneles dinámicos de las manos
     private JPanel panelManoJ1;
     private JPanel panelManoJ2;
 
-    // Paneles dinámicos de las zonas del tablero
     private JPanel panelCampoMonstruosJ1;
     private JPanel panelCampoMonstruosJ2;
     private JPanel panelCampoMagiaJ1;
     private JPanel panelCampoMagiaJ2;
 
-    // Datos del modelo de juego 
-    private final Jugador jugador1;
-    private final Jugador jugador2;
+    private final String nombreJ1;
+    private final String nombreJ2;
 
-    // Constructor de la ventana
-    public VentanaDuelo(Jugador j1, Jugador j2) {
-        this.jugador1 = j1;
-        this.jugador2 = j2;
+    public VentanaDuelo(String nombreJ1, String nombreJ2) {
+        this.nombreJ1 = nombreJ1;
+        this.nombreJ2 = nombreJ2;
 
         setTitle("Yu-Gi-Oh! - Campo de Duelo");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         getContentPane().setBackground(C_BG_DARK);
 
-        // Ensamblaje de la interfaz con la distribución oficial
         add(crearHeader(),  BorderLayout.NORTH);
         add(crearCentro(),  BorderLayout.CENTER);
         add(crearFooter(),  BorderLayout.SOUTH);
 
-        // Sincronización inicial y configuración de dimensiones
-        actualizarInterfaz();
         pack();
         setMinimumSize(new Dimension(1100, 720));
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
-    // --- GETTERS REQUERIDOS POR TU CONTROLADORJUEGO ---
     public JButton getBtnJugarCarta()    { return btnJugarCarta; }
     public JButton getBtnAtacar()        { return btnAtacar; }
     public JButton getBtnActivarTrampa() { return btnActivarTrampa; }
     public JButton getBtnTerminarTurno() { return btnTerminarTurno; }
 
-    /**
-     * Sincroniza dinámicamente toda la información del modelo con la vista.
-     * Incluye validaciones de seguridad para evitar NullPointerException si el campo no está listo.
-     */
-    public void actualizarInterfaz() {
-        if (jugador1 == null || jugador2 == null) return;
+    // El controlador llama este metodo pasando todos los datos ya listos
+    public void actualizarInterfaz(
+            int lpJ1, int lpJ2,
+            int mazoJ1, int mazoJ2,
+            int manoJ1, int manoJ2,
+            int monstruosJ1, int monstruosJ2,
+            int trampasJ1, int trampasJ2,
+            List<Carta> cartasManoJ1, List<Carta> cartasManoJ2,
+            List<Monstruo> campMonstruosJ1, List<Monstruo> campMonstruosJ2,
+            List<CartaMagica> campMagiasJ1, List<CartaMagica> campMagiasJ2,
+            List<CartaTrampa> campTrampasJ1, List<CartaTrampa> campTrampasJ2) {
 
-        // Actualización de Puntos de Vida (LP)
-        lblLPJ1.setText(String.valueOf(jugador1.getPuntosVida()));
-        lblLPJ2.setText(String.valueOf(jugador2.getPuntosVida()));
+        lblLPJ1.setText(String.valueOf(lpJ1));
+        lblLPJ2.setText(String.valueOf(lpJ2));
 
-        // Actualización de Mazos y Manos en los paneles laterales
-        lblMazo1.setText(cantMazo(jugador1));
-        lblMazo2.setText(cantMazo(jugador2));
-        lblMano1.setText(cantMano(jugador1));
-        lblMano2.setText(cantMano(jugador2));
+        lblMazo1.setText(mazoJ1 + " cartas");
+        lblMazo2.setText(mazoJ2 + " cartas");
+        lblMano1.setText(manoJ1 + " cartas");
+        lblMano2.setText(manoJ2 + " cartas");
 
-        // Actualización de estados del campo en paneles laterales (Protegido contra nulos)
-        lblMonstruos1.setText(jugador1.getCampo() != null ? cantMonstruos(jugador1) : "0 monstruos");
-        lblMonstruos2.setText(jugador2.getCampo() != null ? cantMonstruos(jugador2) : "0 monstruos");
-        lblTrampa1.setText(jugador1.getCampo() != null ? cantTrampas(jugador1) : "0 trampas");
-        lblTrampa2.setText(jugador2.getCampo() != null ? cantTrampas(jugador2) : "0 trampas");
+        lblMonstruos1.setText(monstruosJ1 + " monstruos");
+        lblMonstruos2.setText(monstruosJ2 + " monstruos");
+        lblTrampa1.setText(trampasJ1 + " trampas");
+        lblTrampa2.setText(trampasJ2 + " trampas");
 
-        // Reconstrucción visual de las cartas en mano de ambos duelistas
-        reconstruirMano(panelManoJ1, jugador1);
-        reconstruirMano(panelManoJ2, jugador2);
+        reconstruirMano(panelManoJ1, cartasManoJ1);
+        reconstruirMano(panelManoJ2, cartasManoJ2);
 
-        // Reconstrucción visual del tablero de juego (Monstruos y Magias/Trampas)
-        if (jugador1.getCampo() != null) {
-            reconstruirCampoMonstruos(panelCampoMonstruosJ1, jugador1);
-            reconstruirCampoMagia(panelCampoMagiaJ1, jugador1);
-        }
-        if (jugador2.getCampo() != null) {
-            reconstruirCampoMonstruos(panelCampoMonstruosJ2, jugador2);
-            reconstruirCampoMagia(panelCampoMagiaJ2, jugador2);
-        }
+        reconstruirCampoMonstruos(panelCampoMonstruosJ1, campMonstruosJ1);
+        reconstruirCampoMonstruos(panelCampoMonstruosJ2, campMonstruosJ2);
 
-        // Forzar redibujado de la interfaz gráfica
+        reconstruirCampoMagia(panelCampoMagiaJ1, campMagiasJ1, campTrampasJ1);
+        reconstruirCampoMagia(panelCampoMagiaJ2, campMagiasJ2, campTrampasJ2);
+
         revalidate();
         repaint();
     }
@@ -127,8 +108,6 @@ public class VentanaDuelo extends JFrame {
         btnActivarTrampa.setEnabled(false);
         btnTerminarTurno.setEnabled(false);
     }
-
-    // --- MÉTODOS DE CONSTRUCCIÓN DE LA INTERFAZ GRÁFICA ---
 
     private JPanel crearHeader() {
         JPanel h = new JPanel(new BorderLayout());
@@ -152,14 +131,13 @@ public class VentanaDuelo extends JFrame {
         centro.setBackground(C_BG_DARK);
         centro.setBorder(new EmptyBorder(4, 4, 4, 4));
 
-        // Paneles de estadísticas laterales (Jugador 1 Izquierda, Jugador 2 Derecha)
-        centro.add(crearPanelStats(jugador1, true),  BorderLayout.WEST);
-        centro.add(crearPanelStats(jugador2, false), BorderLayout.EAST);
+        centro.add(crearPanelStats(nombreJ1, true),  BorderLayout.WEST);
+        centro.add(crearPanelStats(nombreJ2, false), BorderLayout.EAST);
         centro.add(crearAreaCentral(),               BorderLayout.CENTER);
         return centro;
     }
 
-    private JPanel crearPanelStats(Jugador j, boolean esJ1) {
+    private JPanel crearPanelStats(String nombre, boolean esJ1) {
         JPanel p = new JPanel(new GridLayout(6, 1, 0, 2));
         p.setBackground(C_BG_PANEL);
         p.setPreferredSize(new Dimension(130, 0));
@@ -167,19 +145,18 @@ public class VentanaDuelo extends JFrame {
                 BorderFactory.createLineBorder(new Color(40, 50, 70), 1),
                 new EmptyBorder(4, 6, 4, 6)));
 
-        JLabel nombre = new JLabel(j.getNombre(), SwingConstants.CENTER);
-        nombre.setForeground(C_DORADO);
-        nombre.setFont(new Font("Serif", Font.BOLD, 13));
-        nombre.setOpaque(true);
-        nombre.setBackground(C_BG_DARK);
-        p.add(nombre);
+        JLabel lNombre = new JLabel(nombre, SwingConstants.CENTER);
+        lNombre.setForeground(C_DORADO);
+        lNombre.setFont(new Font("Serif", Font.BOLD, 13));
+        lNombre.setOpaque(true);
+        lNombre.setBackground(C_BG_DARK);
+        p.add(lNombre);
 
-        // Inyección automática de referencias a las etiquetas dinámicas de estado
-        p.add(crearFilaStat("LP:",      String.valueOf(j.getPuntosVida()), C_VERDE_LP, esJ1, "lp"));
-        p.add(crearFilaStat("Mazo:",    cantMazo(j),     C_TEXTO, esJ1, "mazo"));
-        p.add(crearFilaStat("Mano:",    cantMano(j),     C_TEXTO, esJ1, "mano"));
-        p.add(crearFilaStat("Campo:",   cantMonstruos(j),C_TEXTO, esJ1, "monstruos"));
-        p.add(crearFilaStat("Trampas:", cantTrampas(j),  C_LILA,  esJ1, "trampa"));
+        p.add(crearFilaStat("LP:",      "8000", C_VERDE_LP, esJ1, "lp"));
+        p.add(crearFilaStat("Mazo:",    "0 cartas",    C_TEXTO,   esJ1, "mazo"));
+        p.add(crearFilaStat("Mano:",    "0 cartas",    C_TEXTO,   esJ1, "mano"));
+        p.add(crearFilaStat("Campo:",   "0 monstruos", C_TEXTO,   esJ1, "monstruos"));
+        p.add(crearFilaStat("Trampas:", "0 trampas",   C_LILA,    esJ1, "trampa"));
         return p;
     }
 
@@ -215,10 +192,9 @@ public class VentanaDuelo extends JFrame {
         area.setBackground(C_BG_CAMPO);
         area.setBorder(new EmptyBorder(4, 6, 4, 6));
 
-        // Inicialización y asignación de contenedores del tablero
-        panelManoJ2             = crearContenedorMano("Mano de " + jugador2.getNombre());
-        panelCampoMonstruosJ2   = crearFilaCampo(new Color(14, 30, 14));
-        panelCampoMagiaJ2       = crearFilaCampo(new Color(10, 14, 30));
+        panelManoJ2           = crearContenedorMano("Mano de " + nombreJ2);
+        panelCampoMonstruosJ2 = crearFilaCampo(new Color(14, 30, 14));
+        panelCampoMagiaJ2     = crearFilaCampo(new Color(10, 14, 30));
 
         JLabel vs = new JLabel("\u2500\u2500\u2500 VS \u2500\u2500\u2500", SwingConstants.CENTER);
         vs.setForeground(C_GRIS);
@@ -226,11 +202,10 @@ public class VentanaDuelo extends JFrame {
         vs.setOpaque(true);
         vs.setBackground(C_BG_DARK);
 
-        panelCampoMagiaJ1       = crearFilaCampo(new Color(10, 14, 30));
-        panelCampoMonstruosJ1   = crearFilaCampo(new Color(14, 30, 14));
-        panelManoJ1             = crearContenedorMano("Mano de " + jugador1.getNombre());
+        panelCampoMagiaJ1     = crearFilaCampo(new Color(10, 14, 30));
+        panelCampoMonstruosJ1 = crearFilaCampo(new Color(14, 30, 14));
+        panelManoJ1           = crearContenedorMano("Mano de " + nombreJ1);
 
-        // Distribución vertical en el tablero (Espejo: J2 arriba, J1 abajo)
         area.add(panelManoJ2);
         area.add(panelCampoMonstruosJ2);
         area.add(panelCampoMagiaJ2);
@@ -267,14 +242,12 @@ public class VentanaDuelo extends JFrame {
         return p;
     }
 
-    // --- LOGICA DE RECONSTRUCCIÓN DINÁMICA DE COMPONENTES ---
-
-    private void reconstruirMano(JPanel contenedor, Jugador jugador) {
+    private void reconstruirMano(JPanel contenedor, List<Carta> mano) {
         JPanel panelCartas = (JPanel) ((BorderLayout) contenedor.getLayout())
                 .getLayoutComponent(BorderLayout.CENTER);
         panelCartas.removeAll();
-        if (jugador.getMano() != null) {
-            for (Carta c : jugador.getMano()) {
+        if (mano != null) {
+            for (Carta c : mano) {
                 panelCartas.add(new CartaVisual(c));
             }
         }
@@ -282,14 +255,12 @@ public class VentanaDuelo extends JFrame {
         panelCartas.repaint();
     }
 
-    private void reconstruirCampoMonstruos(JPanel fila, Jugador jugador) {
+    private void reconstruirCampoMonstruos(JPanel fila, List<Monstruo> lista) {
         fila.removeAll();
-        if (jugador.getCampo() != null) {
-            List<Monstruo> lista = jugador.getCampo().getMonstruos();
+        if (lista != null) {
             for (Monstruo m : lista) {
                 fila.add(new SlotCampoVisual(m, m.isEnPosicionAtaque()));
             }
-            // Rellenar slots vacíos hasta completar los 5 reglamentarios de Monstruos (M)
             for (int i = lista.size(); i < 5; i++) {
                 fila.add(crearSlotVacio("M"));
             }
@@ -298,17 +269,12 @@ public class VentanaDuelo extends JFrame {
         fila.repaint();
     }
 
-    private void reconstruirCampoMagia(JPanel fila, Jugador jugador) {
+    private void reconstruirCampoMagia(JPanel fila, List<CartaMagica> magias, List<CartaTrampa> trampas) {
         fila.removeAll();
-        if (jugador.getCampo() != null) {
-            List<CartaMagica> magias  = jugador.getCampo().getCartasMagicas();
-            List<CartaTrampa> trampas = jugador.getCampo().getCartasTrampa();
-            
+        if (magias != null && trampas != null) {
             for (CartaMagica m : magias)  fila.add(new SlotCampoVisual(m, true));
             for (CartaTrampa t : trampas) fila.add(new SlotCampoVisual(t, true));
-            
             int n = magias.size() + trampas.size();
-            // Rellenar slots vacíos hasta completar los 5 reglamentarios de Hechizos/Trampas (S/T)
             for (int i = n; i < 5; i++) {
                 fila.add(crearSlotVacio("S/T"));
             }
@@ -323,10 +289,10 @@ public class VentanaDuelo extends JFrame {
                 ImagenCartaCache.ANCHO_CAMPO + 4,
                 ImagenCartaCache.ALTO_CAMPO  + 4));
         slot.setOpaque(true);
-        
+
         Color bg  = texto.equals("M") ? new Color(14, 30, 14) : new Color(10, 14, 30);
         Color brd = texto.equals("M") ? new Color(30, 58, 30) : new Color(26, 30, 58);
-        
+
         slot.setBackground(bg);
         slot.setForeground(new Color(brd.getRed(), brd.getGreen(), brd.getBlue(), 180));
         slot.setFont(new Font("SansSerif", Font.BOLD, 10));
@@ -378,20 +344,5 @@ public class VentanaDuelo extends JFrame {
         btn.setFocusPainted(false);
         btn.setBorder(BorderFactory.createLineBorder(color, 1));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    }
-
-    // --- MÉTODOS HELPERS / DE CONTROL CON VALIDACIÓN ---
-
-    private String cantMazo(Jugador j) { 
-        return j.getMazo() != null ? j.getMazo().getCantidadCartas() + " cartas" : "0 cartas"; 
-    }
-    private String cantMano(Jugador j) { 
-        return j.getMano() != null ? j.getMano().size() + " cartas" : "0 cartas"; 
-    }
-    private String cantMonstruos(Jugador j) { 
-        return (j.getCampo() != null) ? j.getCampo().getCantidadMonstruos() + " monstruos" : "0 monstruos"; 
-    }
-    private String cantTrampas(Jugador j) { 
-        return (j.getCampo() != null) ? j.getCampo().getCartasTrampa().size() + " trampas" : "0 trampas"; 
     }
 }

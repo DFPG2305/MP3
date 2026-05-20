@@ -107,14 +107,15 @@ public class CartaVisual extends JPanel {
     }
 
     private String tipoEtiqueta() {
-        if (carta instanceof Monstruo m) return "★" + m.getNivel();
+        if (carta instanceof Monstruo) return "★" + ((Monstruo) carta).getNivel();
         if (carta instanceof CartaMagica) return "MAG";
         return "TRP";
     }
 
     private String buildTooltip() {
         StringBuilder sb = new StringBuilder("<html><b>" + carta.getNombre() + "</b>");
-        if (carta instanceof Monstruo m) {
+        if (carta instanceof Monstruo) {
+            Monstruo m = (Monstruo) carta;
             sb.append("<br>ATK: ").append(m.getAtk())
             .append(" / DEF: ").append(m.getDef())
             .append("<br>Nivel: ").append(m.getNivel());
